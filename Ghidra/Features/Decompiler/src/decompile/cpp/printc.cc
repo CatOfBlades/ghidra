@@ -52,7 +52,7 @@ OpToken PrintC::boolean_and = { "&&", "", 2, 22, false, OpToken::binary, 1, 0, (
 OpToken PrintC::boolean_xor = { "^^", "", 2, 20, false, OpToken::binary, 1, 0, (OpToken *)0 };
 OpToken PrintC::boolean_or = { "||", "", 2, 18, false, OpToken::binary, 1, 0, (OpToken *)0 };
 OpToken PrintC::assignment = { "=", "", 2, 14, false, OpToken::binary, 1, 5, (OpToken *)0 };
-OpToken PrintC::comma = { ",", "", 2, 2, true, OpToken::binary, 0, 0, (OpToken *)0 };
+OpToken PrintC::comma = { ", ", "", 2, 2, true, OpToken::binary, 0, 0, (OpToken *)0 };
 OpToken PrintC::new_op = { "", "", 2, 62, false, OpToken::space, 1, 0, (OpToken *)0 };
 
 // Inplace assignment operators
@@ -379,12 +379,14 @@ void PrintC::opFunc(const PcodeOp *op)
   string nm = op->getOpcode()->getOperatorName(op);
   pushAtom(Atom(nm,optoken,EmitMarkup::no_color,op));
   if (op->numInput() > 0) {
-    for(int4 i=0;i<op->numInput()-1;++i)
+    for(int4 i=0;i<op->numInput()-1;++i) {
       pushOp(&comma,op);
+	}
   // implied vn's pushed on in reverse order for efficiency
   // see PrintLanguage::pushVnImplied
-    for(int4 i=op->numInput()-1;i>=0;--i)
+    for(int4 i=op->numInput()-1;i>=0;--i) {
       pushVn(op->getIn(i),op,mods);
+	}
   }
   else				// Push empty token for void
     pushAtom(Atom(EMPTY_STRING,blanktoken,EmitMarkup::no_color));
@@ -1486,6 +1488,10 @@ void PrintC::resetDefaultsPrintC(void)
   option_nocasts = false;
   option_NULL = false;
   option_unplaced = false;
+  option_space_after_comma = false;
+  option_newline_before_else = true;
+  option_newline_before_opening_brace = false;
+  option_newline_after_prototype = true;
   setCStyleComments();
 }
 
@@ -2030,6 +2036,9 @@ void PrintC::emitStructDefinition(const TypeStruct *ct)
     iter++;
     if (iter != ct->endField()) {
       emit->print(COMMA); // Print comma separator
+	  if (option_space_after_comma) {
+      	emit->spaces(1);
+      }
       emit->tagLine();
     }
   }
@@ -2128,7 +2137,12 @@ void PrintC::emitPrototypeInputs(const FuncProto *proto)
     bool printComma = false;
     for(int4 i=0;i<sz;++i) {
       if (printComma)
-	emit->print(COMMA);
+	  {
+		emit->print(COMMA);
+		if (option_space_after_comma) {
+		  emit->spaces(1);
+		}
+	  }
       ProtoParameter *param = proto->getParam(i);
       if (isSet(hide_thisparam) && param->isThisPointer())
 	continue;
@@ -2148,6 +2162,9 @@ void PrintC::emitPrototypeInputs(const FuncProto *proto)
   if (proto->isDotdotdot()) {
     if (sz != 0)
       emit->print(COMMA);
+	  if (option_space_after_comma) {
+		  emit->spaces(1);
+	  }
     emit->print(DOTDOTDOT);
   }
 }

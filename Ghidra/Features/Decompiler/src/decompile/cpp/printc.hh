@@ -146,6 +146,7 @@ protected:
   bool option_nocasts;		///< Don't print a cast if \b true
   bool option_unplaced;		///< Set to \b true if we should display unplaced comments
   bool option_hide_exts;	///< Set to \b true if we should hide implied extension operations
+  bool option_space_after_comma;
   string nullToken;		///< Token to use for 'null'
   string sizeSuffix;		///< Characters to print to indicate a \e long integer token
   CommentSorter commsorter;	///< Container/organizer for comments in the current function
@@ -235,6 +236,7 @@ public:
   void setCPlusPlusStyleComments(void) { setCommentDelimeter("// ","",true); }	///< Set c++-style "//" comment delimiters
   void setDisplayUnplaced(bool val) { option_unplaced = val; }	///< Toggle whether \e unplaced comments are displayed in the header
   void setHideImpliedExts(bool val) { option_hide_exts = val; }	///< Toggle whether implied extensions are hidden
+  void setSpaceAfterComma(bool val) { option_space_after_comma = val; }
   virtual ~PrintC(void) {}
   virtual void resetDefaults(void);
   virtual void initializeFromArchitecture(void);
